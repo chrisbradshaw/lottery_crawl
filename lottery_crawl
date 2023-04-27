@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait as wait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver import ActionChains
+import schedule
 
 
 def read_file(file_location):
@@ -18,7 +19,7 @@ def read_file(file_location):
 def apply_lottery(account):
     first_name,last_name,email,month,day,year=account.values()
     print(first_name,last_name,email,month,day,year)
-    
+
     for desktop in driver.find_elements(By.CLASS_NAME,'row.lotteries-row.hide-for-tablets.show-for-desktop'):
         for button in desktop.find_elements(By.CLASS_NAME,'btn.btn-primary.enter-button.enter-lottery-link'):
             button.click()
@@ -32,12 +33,12 @@ def apply_lottery(account):
             driver.find_element(By.ID,'dlslot_dob_year').send_keys(year)
             driver.find_element(By.ID,'dlslot_zip').send_keys('11101')
             Select(driver.find_element(By.ID, 'dlslot_country')).select_by_value("2")
-            
+
             driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
             time.sleep(1)
             check_mark = driver.find_element(By.XPATH,'/html/body/div/main/article/div/form/fieldset/p[8]/label')
             ActionChains(driver).move_to_element_with_offset(check_mark,-50,0).click().perform()
-            
+
             try:
                 recaptcha=driver.find_element(By.XPATH,'//*[@id="post-81"]/div/form/fieldset/div[1]/div/div/iframe')
                 driver.switch_to.frame(recaptcha)
@@ -46,11 +47,11 @@ def apply_lottery(account):
                 driver.switch_to.parent_frame()
             except:
                 pass
-           
+
             driver.find_element(By.CLASS_NAME,'btn.btn-primary').click()
             driver.switch_to.default_content()
             driver.find_element(By.CLASS_NAME,'fancybox-item.fancybox-close').click()
-            
+
 def main():
     for website in website_list:
         print(website)
@@ -60,9 +61,14 @@ def main():
         time.sleep(1)
         for account in accounts_info:
             apply_lottery(account)
-        
 
-website_list=read_file('lottery_website.txt')   
+
+website_list=read_file('lottery_website.txt')
 accounts_info=read_file('accounts.txt')
-driver = uc.Chrome() 
-main()
+driver = uc.Chrome()
+
+schedule.every().day.at("09:00").do(main,'It is 09:00 applying to broadway lotteries')
+
+while True:
+    schedule.run_pending()
+    time.sleep(60) # wait one minute
