@@ -66,9 +66,10 @@ def main():
 website_list=read_file('lottery_website.txt')
 accounts_info=read_file('accounts.txt')
 driver = uc.Chrome()
+main()
 
-schedule.every().day.at("09:00").do(main,'It is 09:00 applying to broadway lotteries')
+# schedule.every().day.at("09:00").do(main)
 
-while True:
-    schedule.run_pending()
-    time.sleep(60) # wait one minute
+# while True:
+#     schedule.run_pending()
+#     time.sleep(60)
